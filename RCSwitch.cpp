@@ -6,6 +6,7 @@
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=48
+  - Leif Rothbrust / post(at)rothbrust(dot)com
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -325,7 +326,6 @@ void RCSwitch::send(unsigned long Code, unsigned int length) {
 
 void RCSwitch::send(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
-    this->sendPreSync();
     int i = 0;
     while (sCodeWord[i] != '\0') {
       switch(sCodeWord[i]) {
@@ -437,8 +437,6 @@ void RCSwitch::sendSync() {
 		this->transmit(1,10);
 	}
 }
-
-void RCSwitch::sendPreSync() {}
 
 /**
  * Enable receiving data

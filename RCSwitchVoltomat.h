@@ -16,7 +16,6 @@ class RCSwitchVoltomat : public RCSwitch {
     void send0();
     void send1();
     void sendSync();
-    void sendPreSync();
 };
 
 #endif

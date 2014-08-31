@@ -95,7 +95,6 @@ class RCSwitch {
     virtual void send0();
     virtual void send1();
     virtual void sendSync();
-    virtual void sendPreSync();
     virtual void transmit(int nHighPulses, int nLowPulses);
 
     int nPulseLength;

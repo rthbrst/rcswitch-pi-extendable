@@ -1,3 +1,30 @@
+/**
+ * RCSwitch protocol implementation for cheap self-learning RC
+ * switches from Voltomat (sold by Bauhaus, German DIY retailer)
+ *
+ * After plugging the RC switch in, it will be programmed to use a
+ * specific code by sending an ON signal within a short
+ * period of time. Signals from original remote controls can be
+ * recorded using 'sniffer' command (which does not distinguish
+ * between ON and OFF but only displays a numerical representation
+ * of the signal).
+ *
+ * The signal is a 32-bit code:
+ *
+ * iiiiiiiiiiiiiiiiiiiiiiiiiigsxxdd
+ *
+ * i: remote control identification
+ * x: ? (might also be used for identification)
+ * d: switch number (1: 11, 2: 10, 3: 01)
+ * g: group (switch all): 0 no, 1 yes (dd is
+ *      11 when operating group)
+ *
+ *
+ * Credits: Created by Leif Rothbrust
+ *          post(at)rothbrust(dot)com
+ *          https://github.com/rthbrst
+ */
+
 #include "RCSwitchVoltomat.h"
 
 RCSwitchVoltomat::RCSwitchVoltomat() : RCSwitch(200) {
@@ -73,17 +100,13 @@ void RCSwitchVoltomat::send1() {
   }
 }
 
-void RCSwitchVoltomat::sendSync() {
-  RCSwitch::sendSync();
-}
-
 /**
  * |__________
  */
-void RCSwitchVoltomat::sendPreSync() {
+void RCSwitchVoltomat::sendSync() {
   if(RCSwitch::nProtocol == PROTO_NUMBER) {
     this->transmit(1,10);
   } else {
-    RCSwitch::sendPreSync();
+    RCSwitch::sendSync();
   }
 }
