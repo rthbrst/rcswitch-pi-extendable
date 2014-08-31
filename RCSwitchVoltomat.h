@@ -3,6 +3,8 @@
 
 #include "RCSwitch.h"
 
+#define PROTO_NUMBER 100
+
 class RCSwitchVoltomat : public RCSwitch {
   public:
     RCSwitchVoltomat();

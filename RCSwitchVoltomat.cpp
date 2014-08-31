@@ -6,7 +6,7 @@ RCSwitchVoltomat::RCSwitchVoltomat() : RCSwitch(200) {
 
 void RCSwitchVoltomat::setProtocol(int nProtocol) {
   RCSwitch::setProtocol(nProtocol);
-  if (nProtocol == 3) {
+  if (nProtocol == PROTO_NUMBER) {
     this->setPulseLength(260);
   }
 }
@@ -37,9 +37,9 @@ bool RCSwitchVoltomat::receiveMyProtocol(unsigned int changeCount) {
       code = code >> 1;
     if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
       RCSwitch::nReceivedValue = code;
-      RCSwitch::nReceivedBitlength = changeCount / 2;
+      RCSwitch::nReceivedBitlength = changeCount / 4;
       RCSwitch::nReceivedDelay = delay;
-      RCSwitch::nReceivedProtocol = 100;
+      RCSwitch::nReceivedProtocol = PROTO_NUMBER;
     }
 
   if (code == 0){
@@ -53,7 +53,7 @@ bool RCSwitchVoltomat::receiveMyProtocol(unsigned int changeCount) {
  * |_|_____
  */
 void RCSwitchVoltomat::send0() {
-  if(RCSwitch::nProtocol == 3) {
+  if(RCSwitch::nProtocol == PROTO_NUMBER) {
     this->transmit(1,1);
     this->transmit(1,5);
   } else {
@@ -65,7 +65,7 @@ void RCSwitchVoltomat::send0() {
  * |_____|_
  */
 void RCSwitchVoltomat::send1() {
-  if(RCSwitch::nProtocol == 3) {
+  if(RCSwitch::nProtocol == PROTO_NUMBER) {
     this->transmit(1,5);
     this->transmit(1,1);
   } else {
@@ -81,7 +81,7 @@ void RCSwitchVoltomat::sendSync() {
  * |__________
  */
 void RCSwitchVoltomat::sendPreSync() {
-  if(RCSwitch::nProtocol == 3) {
+  if(RCSwitch::nProtocol == PROTO_NUMBER) {
     this->transmit(1,10);
   } else {
     RCSwitch::sendPreSync();
