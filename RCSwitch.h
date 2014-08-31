@@ -89,6 +89,8 @@ class RCSwitch {
 
     void sendRaw(int count, int* timings);
 
+    static char* dec2binWzerofill(unsigned long dec, unsigned int length);
+
   protected:
     virtual void send0();
     virtual void send1();
@@ -117,8 +119,6 @@ class RCSwitch {
     void sendT0();
     void sendT1();
     void sendTF();
-
-    static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
     static void handleInterrupt();
     static bool receiveProtocol1(unsigned int changeCount);
