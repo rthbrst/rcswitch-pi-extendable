@@ -54,7 +54,7 @@ typedef uint8_t byte;
 class RCSwitch {
 
   public:
-    RCSwitch();
+    RCSwitch(unsigned int maxChanges = RCSWITCH_MAX_CHANGES);
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -71,22 +71,45 @@ class RCSwitch {
     void enableReceive();
     void disableReceive();
     bool available();
-	void resetAvailable();
-	
+    void resetAvailable();
+
     unsigned long getReceivedValue();
     unsigned int getReceivedBitlength();
     unsigned int getReceivedDelay();
-	unsigned int getReceivedProtocol();
+    unsigned int getReceivedProtocol();
     unsigned int* getReceivedRawdata();
-  
+
     void enableTransmit(int nTransmitterPin);
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
     void setReceiveTolerance(int nPercent);
-	void setProtocol(int nProtocol);
-	void setProtocol(int nProtocol, int nPulseLength);
-  
+    void setProtocol(int nProtocol);
+    void setProtocol(int nProtocol, int nPulseLength);
+
+    void sendRaw(int count, int* timings);
+
+  protected:
+    virtual void send0();
+    virtual void send1();
+    virtual void sendSync();
+    virtual void sendPreSync();
+    virtual void transmit(int nHighPulses, int nLowPulses);
+
+    int nPulseLength;
+    int nRepeatTransmit;
+    char nProtocol;
+
+    static int nReceiveTolerance;
+    static unsigned long nReceivedValue;
+    static unsigned int nReceivedBitlength;
+    static unsigned int nReceivedDelay;
+    static unsigned int nReceivedProtocol;
+    static unsigned int nMaxChanges;
+    static unsigned int* timings;
+
+    static bool (*fReceiveExtendedProtocol)(unsigned int);
+
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
@@ -94,30 +117,17 @@ class RCSwitch {
     void sendT0();
     void sendT1();
     void sendTF();
-    void send0();
-    void send1();
-    void sendSync();
-    void transmit(int nHighPulses, int nLowPulses);
 
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
     static void handleInterrupt();
-	static bool receiveProtocol1(unsigned int changeCount);
-	static bool receiveProtocol2(unsigned int changeCount);
+    static bool receiveProtocol1(unsigned int changeCount);
+    static bool receiveProtocol2(unsigned int changeCount);
+
+    static bool receiveExtendedProtocol(unsigned int changeCount);
+
     int nReceiverInterrupt;
     int nTransmitterPin;
-    int nPulseLength;
-    int nRepeatTransmit;
-	char nProtocol;
-
-	static int nReceiveTolerance;
-    static unsigned long nReceivedValue;
-    static unsigned int nReceivedBitlength;
-	static unsigned int nReceivedDelay;
-	static unsigned int nReceivedProtocol;
-    static unsigned int timings[RCSWITCH_MAX_CHANGES];
-
-    
 };
 
 #endif

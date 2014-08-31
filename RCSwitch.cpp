@@ -30,10 +30,12 @@ unsigned long RCSwitch::nReceivedValue = NULL;
 unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
 unsigned int RCSwitch::nReceivedProtocol = 0;
-unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+unsigned int* RCSwitch::timings = 0;
 int RCSwitch::nReceiveTolerance = 60;
+unsigned int RCSwitch::nMaxChanges = 0;
+bool (*RCSwitch::fReceiveExtendedProtocol)(unsigned int) = NULL;
 
-RCSwitch::RCSwitch() {
+RCSwitch::RCSwitch(unsigned int maxChanges) {
   this->nReceiverInterrupt = -1;
   this->nTransmitterPin = -1;
   RCSwitch::nReceivedValue = NULL;
@@ -41,6 +43,9 @@ RCSwitch::RCSwitch() {
   this->setRepeatTransmit(10);
   this->setReceiveTolerance(60);
   this->setProtocol(1);
+
+  RCSwitch::nMaxChanges = maxChanges;
+  RCSwitch::timings = new unsigned int[maxChanges];
 }
 
 /**
@@ -320,6 +325,7 @@ void RCSwitch::send(unsigned long Code, unsigned int length) {
 
 void RCSwitch::send(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
+    this->sendPreSync();
     int i = 0;
     while (sCodeWord[i] != '\0') {
       switch(sCodeWord[i]) {
@@ -377,7 +383,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-  	if (this->nProtocol == 1){
+  if (this->nProtocol == 1){
 		this->transmit(3,1);
 	}
 	else if (this->nProtocol == 2) {
@@ -424,14 +430,15 @@ void RCSwitch::sendTF() {
  * Waveform Protocol 2: | |__________
  */
 void RCSwitch::sendSync() {
-
-    if (this->nProtocol == 1){
+  if (this->nProtocol == 1){
 		this->transmit(1,31);
 	}
 	else if (this->nProtocol == 2) {
 		this->transmit(1,10);
 	}
 }
+
+void RCSwitch::sendPreSync() {}
 
 /**
  * Enable receiving data
@@ -560,9 +567,9 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
 
 /**
  * handleInterrupt() method from 433Utils (https://github.com/ninjablocks/433Utils)
+ * extended by @rthbrst
  */
 void RCSwitch::handleInterrupt() {
-
   static unsigned int duration;
   static unsigned int changeCount;
   static unsigned long lastTime;
@@ -571,16 +578,18 @@ void RCSwitch::handleInterrupt() {
   long time = micros();
   duration = time - lastTime;
 
-  if (duration > 5000 && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {    
+  if (duration > 5000 && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {
     repeatCount++;
     changeCount--;
 
     if (repeatCount == 2) {
-                if (receiveProtocol1(changeCount) == false){
-                        if (receiveProtocol2(changeCount) == false){
-                                //failed
-                        }
-                }
+      if (receiveProtocol1(changeCount) == false){
+        if (receiveProtocol2(changeCount) == false){
+          if (receiveExtendedProtocol(changeCount) == false){
+            //failed
+          }
+        }
+      }
       repeatCount = 0;
     }
     changeCount = 0;
@@ -588,7 +597,7 @@ void RCSwitch::handleInterrupt() {
     changeCount = 0;
   }
 
-  if (changeCount >= RCSWITCH_MAX_CHANGES) {
+  if (changeCount >= RCSwitch::nMaxChanges) {
     changeCount = 0;
     repeatCount = 0;
   }
@@ -620,3 +629,38 @@ char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
   return bin;
 }
 
+bool RCSwitch::receiveExtendedProtocol(unsigned int changeCount) {
+  if(fReceiveExtendedProtocol != NULL) {
+    return fReceiveExtendedProtocol(changeCount);
+  } else {
+    return false;
+  }
+}
+
+void RCSwitch::sendRaw(int count, int* timings) {
+    boolean disabled_Receive = false;
+    int nReceiverInterrupt_backup = nReceiverInterrupt;
+    if (this->nTransmitterPin != -1) {
+        if (this->nReceiverInterrupt != -1) {
+            this->disableReceive();
+            disabled_Receive = true;
+        }
+
+        for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
+          for(int i = 0; i < count; i=i+2) {
+            if(timings[i] == 0) break;
+
+            digitalWrite(this->nTransmitterPin, HIGH);
+            delayMicroseconds(timings[i]);
+            digitalWrite(this->nTransmitterPin, LOW);
+            if(i + 1 < count) {
+              delayMicroseconds(timings[i+1]);
+            }
+          }
+        }
+        
+        if(disabled_Receive){
+            this->enableReceive(nReceiverInterrupt_backup);
+        }
+    }
+}
