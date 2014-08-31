@@ -1,6 +1,16 @@
 /*
   based on RF_Sniffer by @justy to provide a handy RF code sniffer
   edited by @rthbrst to be used with extended version of RCSwitch
+
+  This tool records and displays received RC switch commands.
+
+  As some protocols use similar binary representations, the signals
+  will only be shown as a numerical representation (plus protocol
+  number of course). This means, this tool will also not distinguish
+  between ON and OFF or specific vendors of RC switches.
+  'protosend' command can be used to transmit these signals again by
+  specifying protocol number and decimal signal representation (see
+  protosend.cpp for details).
 */
 
 #include "RCSwitchVoltomat.h"
