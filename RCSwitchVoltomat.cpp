@@ -18,6 +18,7 @@
  * d: switch number (1: 11, 2: 10, 3: 01)
  * g: group (switch all): 0 no, 1 yes (dd is
  *      11 when operating group)
+ * s: command (1: ON, 0: OFF)
  *
  *
  * Credits: Created by Leif Rothbrust
