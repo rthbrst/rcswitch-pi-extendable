@@ -11,14 +11,14 @@
  *
  * The signal is a 32-bit code:
  *
- * iiiiiiiiiiiiiiiiiiiiiiiiiigsxxdd
+ * 00iiiiiiiiiiiiiiiiiiiiiixxgsdddd
  *
  * i: remote control identification
- * x: ? (might also be used for identification)
- * d: switch number (1: 11, 2: 10, 3: 01)
- * g: group (switch all): 0 no, 1 yes (dd is
- *      11 when operating group)
+ * x: ? (seems to be ignored, maybe some sync stuff)
+ * g: group (switch all): 0 no, 1 yes (dddd is
+ *      0011 when operating group, but seems to be irrelevant)
  * s: command (1: ON, 0: OFF)
+ * d: device address (1: 0011, 2: 0010, 3: 0001)
  *
  *
  * Credits: Created by Leif Rothbrust
