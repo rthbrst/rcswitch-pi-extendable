@@ -14,11 +14,12 @@
  * 00iiiiiiiiiiiiiiiiiiiiiixxgsdddd
  *
  * i: remote control identification
- * x: ? (seems to be ignored, maybe some sync stuff)
+ * x: ? (seems to be ignored, maybe some sync stuff, was 10
+ *      while sniffing data)
  * g: group (switch all): 0 no, 1 yes (dddd is
- *      0011 when operating group, but seems to be irrelevant)
+ *      1111 when operating group, but seems to be irrelevant)
  * s: command (1: ON, 0: OFF)
- * d: device address (1: 0011, 2: 0010, 3: 0001)
+ * d: device address (1: 1111, 2: 1110, 3: 1101)
  *
  *
  * Credits: Created by Leif Rothbrust
